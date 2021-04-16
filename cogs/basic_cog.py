@@ -47,7 +47,7 @@ class Misc(commands.Cog, name="Misc"):
         exit(0)
 
     @commands.command(brief="test parsing data")
-    async def test_parsing(self, ctx: commands.Context, *args):
+    async def parse(self, ctx: commands.Context, *args):
         for data in args:
             converted = await utils.auto_convert_obj(self.bot, ctx, data)
             await ctx.send(f"`{data}`: {type(data)}")
