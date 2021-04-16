@@ -1,10 +1,10 @@
 import discord
 from discord.ext import commands
 
-class Clear(commands.Cog, name="Clear"):
+class Mod(commands.Cog, name="Mod"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.cog_name = "Misc"
+        self.cog_name = "Mod"
 
     @commands.command(brief="clear a given number of messages in the given channel")
     @commands.has_permissions(read_message_history=True, manage_messages=True)
