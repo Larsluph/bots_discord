@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 
 from cogs.basic_cog import Misc
+from cogs.clear_cog import Clear
 
 bot = commands.Bot(
     command_prefix="^^",
@@ -12,5 +13,6 @@ bot = commands.Bot(
 )
 
 bot.add_cog(Misc(bot))
+bot.add_cog(Clear(bot))
 
-bot.run(os.environ.get("SuperMod", None))
+bot.run(os.environ.get("SuperMod"))
