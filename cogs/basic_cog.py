@@ -1,13 +1,15 @@
 import discord
 from discord.ext import commands
 
+from cogs import utils
+
 class Misc(commands.Cog, name="Misc"):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.cog_name = "Misc"
 
         @bot.check
-        async def is_owner(ctx):
+        async def is_owner(ctx: commands.Context):
             return ctx.author.id == 292714635394809876
 
         @bot.event
@@ -43,3 +45,10 @@ class Misc(commands.Cog, name="Misc"):
         await self.bot.logout()
         print("[LOGS] Connection terminated")
         exit(0)
+
+    @commands.command(brief="test parsing data")
+    async def test_parsing(self, ctx: commands.Context, *args):
+        for data in args:
+            converted = await utils.auto_convert_obj(self.bot, ctx, data)
+            await ctx.send(f"`{data}`: {type(data)}")
+            await ctx.send(f"{converted}: {type(converted)}")

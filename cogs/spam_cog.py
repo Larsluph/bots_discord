@@ -13,10 +13,10 @@ class Spam(commands.Cog, name="SpamCog"):
     @commands.command(brief="start spamming given text every second")
     async def start(self, ctx: commands.Context, *text):
         self.spam_status = True
-        
+
         if text[0] == "dm":
             ctx = self.bot.get_user(int(text[1]))
-            print(f"starting spam user {ctx.display_name}#{ctx.discriminator}")
+            print(f"starting spam on user {ctx.display_name}#{ctx.discriminator}")
             text = " ".join(map(str, text[2:]))
         else:
             text = " ".join(map(str, text))
