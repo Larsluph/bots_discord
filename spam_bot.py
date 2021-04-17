@@ -1,6 +1,7 @@
+"instanciate Spam Discord bot"
+
 import os
 
-import discord
 from discord.ext import commands
 
 from cogs.basic_cog import Misc
