@@ -59,51 +59,48 @@ class Mod(commands.Cog, name="ModCog"):
 
     @commands.has_permissions(send_messages=True)
     @commands.command(brief="sends a given number of messages")
-    async def send(self, ctx: commands.Context, nbr: int, *msg):
+    async def send(self, ctx: commands.Context, nbr: int, *, msg: str):
         "add a command to send a given number of messages"
 
         for _ in range(int(nbr)):
-            await ctx.send(" ".join(msg))
+            await ctx.send(msg)
 
     @commands.has_permissions(kick_members=True)
     @commands.command(brief="kick someone from the current guild")
-    async def kick(self, ctx: commands.Context, user_id, *reason):
+    async def kick(self, ctx: commands.Context, user: discord.Member, *, reason: str):
         "add command to kick someone from the current guild"
 
-        user = await utils.auto_convert_obj(self.bot, ctx, user_id)
-        await ctx.guild.kick(user, reason=" ".join(reason)+f" (on behalf of {ctx.author})")
+        await ctx.guild.kick(user, reason=reason and f"{reason} (on behalf of {ctx.author})")
         await ctx.send(f"user `{user}` kicked!")
 
     @commands.has_permissions(ban_members=True)
     @commands.command(brief="ban someone from the current guild")
-    async def ban(self, ctx: commands.Context, user_id, delete_delay="", *, reason):
+    async def ban(self, ctx: commands.Context, user: discord.Member, delete_delay: str = "", *, reason: str):
         "add command to ban someone from the current guild"
 
-        user = await utils.auto_convert_obj(self.bot, ctx, user_id)
         if delete_delay.isdigit():
             if 0 <= int(delete_delay) <= 7:
                 # await ctx.send(f"banned {user} ({delete_delay} days worth of messages\
                 #     to delete) with reason: {' '.join(reason)}")
                 await ctx.guild.ban(user,
-                                    reason=" ".join(reason) + f" (on behalf of {ctx.author})",
+                                    reason=reason and f"{reason} (on behalf of {ctx.author})",
                                     delete_message_days=int(delete_delay))
             else:
                 await ctx.send("Only able to delete messages between 0 and 7 days ago")
                 return
         else:
-            reason = [delete_delay] + list(reason)
+            reason = delete_delay + reason
             # await ctx.send(f"banned {user} with reason: `{' '.join(reason)}`")
-            await ctx.guild.ban(user, reason=" ".join(reason)+f" (on behalf of {ctx.author})")
+            await ctx.guild.ban(user, reason=reason and f"{reason} (on behalf of {ctx.author})")
 
         await ctx.send(f"user `{user}` banned!")
 
     @commands.has_permissions(ban_members=True)
     @commands.command(brief="unban someone from the current guild")
-    async def unban(self, ctx: commands.Context, user_id, *, reason):
+    async def unban(self, ctx: commands.Context, user: discord.User, *, reason: str):
         "add command to unban someone from the current guild"
 
-        user = await self.bot.fetch_user(user_id)
-        await ctx.guild.unban(user, reason=" ".join(reason)+f" (on behalf of {ctx.author})")
+        await ctx.guild.unban(user, reason=reason and f"{reason} (on behalf of {ctx.author})")
 
     @commands.has_permissions(manage_roles=True)
     @commands.command(brief="removes send messages rights to specified role", pass_context=False)
