@@ -14,7 +14,6 @@ class Counting(commands.Cog, name="CountingCog"):
 
     name = "CountingCog"
     save_location = "data\\counting_data.json"
-    channels = dict()
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot

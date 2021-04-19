@@ -5,7 +5,9 @@ Cog to implement spamming commands:
 """
 
 import asyncio
+from typing import Union
 
+import discord
 from discord.ext import commands, tasks
 
 from cogs import utils
@@ -76,15 +78,17 @@ class Spam(commands.Cog, name="SpamCog"):
         await self.spam_loop()
 
     @commands.command(brief="stop spamming")
-    async def stop(self, ctx: commands.Context, target=None):
+    async def stop(self, ctx: commands.Context, target: Union[discord.User, discord.TextChannel, int] = None):
         "add a command to stop spam user"
 
         if target is None:
-            target = ctx
+            chan_id = ctx.channel.id
+        elif isinstance(target, int):
+            chan_id = target
         else:
-            target = await utils.auto_convert_obj(self.bot, ctx, target)
+            chan_id = target.id
 
-        self.contexts[target] = None
+        self.contexts[chan_id] = None
         await ctx.send("Stopped spamming!")
         print("Stopped spamming")
 

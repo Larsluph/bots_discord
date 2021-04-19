@@ -2,9 +2,12 @@
 Module that compiles misc functions to user with d.py bots\
 """
 
+import discord
 from discord.ext import commands
 
-async def auto_convert_obj(bot: commands.Bot, ctx: commands.Context, data: str):
+from typing import Union
+
+async def auto_convert_obj(bot: commands.Bot, ctx: commands.Context, data: str) -> Union[discord.User, discord.TextChannel, int, str]:
     """\
     convert `data` to DiscordType object:
         - User
