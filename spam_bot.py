@@ -2,6 +2,7 @@
 
 import logging
 import os
+import time
 
 from discord.ext import commands
 
@@ -10,7 +11,11 @@ from cogs.spam_cog import Spam
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler(filename="logs\\spam_bot.log", encoding='utf-8', mode='w')
+handler = logging.FileHandler(
+    filename=time.strftime("logs\\spam_bot_%Y-%m-%d_%H-%M-%S.log"),
+    encoding='utf-8',
+    mode='w'
+)
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
