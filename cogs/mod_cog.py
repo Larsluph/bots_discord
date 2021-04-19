@@ -1,8 +1,11 @@
 """\
 Cog to implement mod commands:
     - clear
+    - send
     - kick
-    - ban\
+    - ban
+    - unban
+    - lockdown\
 """
 
 import discord
@@ -18,8 +21,8 @@ class Mod(commands.Cog, name="ModCog"):
         self.bot = bot
         self.cog_name = "ModCog"
 
-    @commands.command(brief="clear a given number of messages in the given channel")
     @commands.has_permissions(read_message_history=True, manage_messages=True)
+    @commands.command(brief="clear a given number of messages in the given channel")
     async def clear(self, ctx: commands.Context, nbr: int, *criterias):
         "add command to clear a given number of messages with filters"
 
@@ -54,16 +57,16 @@ class Mod(commands.Cog, name="ModCog"):
                     i += 1
         await ctx.send("Clear finished! :white_check_mark:", delete_after=1.5)
 
-    @commands.command(brief="sends a given number of messages")
     @commands.has_permissions(send_messages=True)
+    @commands.command(brief="sends a given number of messages")
     async def send(self, ctx: commands.Context, nbr: int, *msg):
         "add a command to send a given number of messages"
 
         for _ in range(int(nbr)):
             await ctx.send(" ".join(msg))
 
-    @commands.command(brief="kick someone from the current guild")
     @commands.has_permissions(kick_members=True)
+    @commands.command(brief="kick someone from the current guild")
     async def kick(self, ctx: commands.Context, user_id, *reason):
         "add command to kick someone from the current guild"
 
@@ -71,8 +74,8 @@ class Mod(commands.Cog, name="ModCog"):
         await ctx.guild.kick(user, reason=" ".join(reason)+f" (on behalf of {ctx.author})")
         await ctx.send(f"user `{user}` kicked!")
 
-    @commands.command(brief="ban someone from the current guild")
     @commands.has_permissions(ban_members=True)
+    @commands.command(brief="ban someone from the current guild")
     async def ban(self, ctx: commands.Context, user_id, delete_delay="", *, reason):
         "add command to ban someone from the current guild"
 
@@ -94,10 +97,24 @@ class Mod(commands.Cog, name="ModCog"):
 
         await ctx.send(f"user `{user}` banned!")
 
+    @commands.has_permissions(ban_members=True)
     @commands.command(brief="unban someone from the current guild")
-    @commands.has_permissions()
     async def unban(self, ctx: commands.Context, user_id, *, reason):
         "add command to unban someone from the current guild"
 
-        user = await utils.auto_convert_obj(self.bot, ctx, user_id)
-        await ctx.guild.unban(user, " ".join(reason))
+        user = await self.bot.fetch_user(user_id)
+        await ctx.guild.unban(user, reason=" ".join(reason)+f" (on behalf of {ctx.author})")
+
+    @commands.has_permissions(manage_roles=True)
+    @commands.command(brief="removes send messages rights to specified role", pass_context=False)
+    async def toggle_lockdown(self, targeted_role: discord.Role):
+        "add command to removes send messages rights to specified role"
+
+        perms = targeted_role.permissions
+
+        if perms.send_messages():
+            perms.update(send_messages=False)
+        else:
+            perms.update(send_messages=True)
+
+        await targeted_role.edit(permissions=perms)
