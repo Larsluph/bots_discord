@@ -6,7 +6,7 @@ from discord.ext import commands
 
 async def auto_convert_obj(bot: commands.Bot, ctx: commands.Context, data: str):
     """\
-    convert {data} to DiscordType object:
+    convert `data` to DiscordType object:
         - User
         - TextChannel
         - int

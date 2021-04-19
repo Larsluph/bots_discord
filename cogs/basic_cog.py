@@ -27,6 +27,7 @@ class Misc(commands.Cog, name="MiscCog"):
 
         @bot.event
         async def on_command_error(ctx: commands.Context, error: commands.CommandError):
+            await ctx.message.add_reaction("\u274c")
             if isinstance(error, commands.CommandInvokeError):
                 error = error.original
 
@@ -40,6 +41,10 @@ class Misc(commands.Cog, name="MiscCog"):
                 await ctx.send("The command requires a check that didn't pass.")
 
 
+            elif isinstance(error, commands.errors.MissingRequiredArgument):
+                await ctx.send("Missing argument. Try calling help command for list of supported arguments.")
+
+
             elif isinstance(error, discord.errors.Forbidden):
                 if "50007" in error.args[0]:
                     await ctx.send("Can't message user ATM.")
@@ -47,6 +52,11 @@ class Misc(commands.Cog, name="MiscCog"):
                 elif "50013" in error.args[0]:
                     await ctx.send("You either don't have enough permissions or\
                         the targeted user has higher privileges than you.")
+
+
+            elif isinstance(error, discord.errors.HTTPException):
+                if "10014" in error.args[0]:
+                    await ctx.send("Unknown Emoji")
 
 
             elif isinstance(error, discord.NotFound):

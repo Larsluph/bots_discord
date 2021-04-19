@@ -1,3 +1,0 @@
-#DONE clear cmd pour clear un certain nbr de messages
-   (peut etre rajouter des filtres de personnes etc)
-lockdown_mode, avec le role à lockdown
