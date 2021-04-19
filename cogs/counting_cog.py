@@ -8,8 +8,6 @@ import os
 import discord
 from discord.ext import commands
 
-from cogs import utils
-
 
 class Counting(commands.Cog, name="CountingCog"):
     "Counting game d.py cog (see module docstring for more info)"
@@ -63,12 +61,10 @@ class Counting(commands.Cog, name="CountingCog"):
             self.save_count()
 
     @commands.command(brief="setup TextChannel to listen to")
-    async def setup(self, ctx: commands.Context, target_channel):
+    async def setup(self, ctx: commands.Context, channel: discord.TextChannel):
         "setup TextChannel to listen to for the Counting Game"
-        channel = await utils.auto_convert_obj(self.bot, ctx, target_channel)
-        if isinstance(channel, discord.TextChannel):
-            channel_id = channel.id
-            self.channels[channel_id] = 0
-            print(f"setup success: {channel}, #{channel_id}")
-            await ctx.send("setup success!", delete_after=2)
-            self.save_count()
+        channel_id = channel.id
+        self.channels[channel_id] = 0
+        print(f"setup success: {channel}, #{channel_id}")
+        await ctx.send("setup success!", delete_after=2)
+        self.save_count()
