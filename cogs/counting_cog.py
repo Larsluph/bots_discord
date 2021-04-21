@@ -67,3 +67,9 @@ class Counting(commands.Cog, name="CountingCog"):
         print(f"setup success: {channel}, #{channel_id}")
         await ctx.send("setup success!", delete_after=2)
         self.save_count()
+
+    @commands.command(brief="reload data from the save file")
+    async def reload(self, ctx: commands.Context):
+        "add a command to reload data from the save file"
+        self.channels = self.load_save()
+        await ctx.send("reload finished!")
