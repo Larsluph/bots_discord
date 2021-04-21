@@ -21,9 +21,10 @@ class Misc(commands.Cog, name="MiscCog"):
         self.bot = bot
         self.cog_name = "MiscCog"
 
-        @bot.check
-        async def is_owner(ctx: commands.Context):
-            return await self.bot.is_owner(self.bot.get_user(ctx.author.id))
+        # @bot.check
+        # async def is_owner(ctx: commands.Context):
+        #     user = self.bot.get_user(ctx.author.id)
+        #     return await self.bot.is_owner(user) if user is not None else False
 
         @bot.event
         async def on_command_error(ctx: commands.Context, error: commands.CommandError):
@@ -37,38 +38,47 @@ class Misc(commands.Cog, name="MiscCog"):
             print("- " + "\n- ".join(error.args))
 
             ## send error msg in chat
-            if isinstance(error, commands.errors.CheckFailure):
-                await ctx.send("The command requires a check that didn't pass.")
+            if isinstance(error, commands.CheckFailure):
+                msg = "The command requires a check that didn't pass."
 
 
-            elif isinstance(error, commands.errors.MissingRequiredArgument):
-                await ctx.send("Missing argument. Try calling help command for list of supported arguments.")
+            elif isinstance(error, commands.CommandNotFound):
+                msg = "Unknown command. Try calling help command"
 
 
-            elif isinstance(error, discord.errors.Forbidden):
-                if "50007" in error.args[0]:
-                    await ctx.send("Can't message user ATM.")
+            elif isinstance(error, commands.UserInputError):
+                if isinstance(error, commands.MissingRequiredArgument):
+                    msg = "You forgot some arguments."
+                elif isinstance(error, commands.TooManyArguments):
+                    msg = "You passed too many arguments."
+                elif isinstance(error, commands.BadArgument):
+                    msg = "Some arguments are invalid."
+                elif isinstance(error, commands.BadUnionArgument):
+                    msg = f"Invalid argument type: {error.errors}."
+                elif isinstance(error, commands.ArgumentParsingError):
+                    msg = "Error while parsing argument(s)."
+                msg += " Check command syntax and try again."
 
-                elif "50013" in error.args[0]:
-                    await ctx.send("You either don't have enough permissions or\
-                        the targeted user has higher privileges than you.")
 
-
-            elif isinstance(error, discord.errors.HTTPException):
-                if "10014" in error.args[0]:
-                    await ctx.send("Unknown Emoji")
-
-
-            elif isinstance(error, discord.NotFound):
+            elif isinstance(error, discord.HTTPException):
                 if "10013" in error.args[0]:
-                    await ctx.send("Unknown User.")
+                    msg = "Unknown User"
+                elif "10014" in error.args[0]:
+                    msg = "Unknown Emoji"
+
+                elif "50007" in error.args[0]:
+                    msg = "Can't message user ATM."
+                elif "50013" in error.args[0]:
+                    msg = "You either don't have enough permissions or the targeted user has higher privileges than you."
 
 
             else:
                 print("Unhandled")
-                await ctx.send(f"Unhandled error: {error}")
+                msg = f"Unhandled error: {error}"
+            ## END
 
             print("=====")
+            await ctx.send(msg)
 
     @commands.Cog.listener()
     async def on_connect(self):

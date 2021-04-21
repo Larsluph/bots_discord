@@ -10,7 +10,7 @@ from cogs.basic_cog import Misc
 from cogs.mod_cog import Mod
 
 logger = logging.getLogger('discord')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 handler = logging.FileHandler(
     filename=time.strftime("logs\\mod_bot_%Y-%m-%d_%H-%M-%S.log"),
     encoding='utf-8',

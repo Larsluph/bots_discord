@@ -10,7 +10,7 @@ from cogs.basic_cog import Misc
 from cogs.spam_cog import Spam
 
 logger = logging.getLogger('discord')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 handler = logging.FileHandler(
     filename=time.strftime("logs\\spam_bot_%Y-%m-%d_%H-%M-%S.log"),
     encoding='utf-8',
