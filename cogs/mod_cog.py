@@ -1,12 +1,15 @@
 """\
 Cog to implement mod commands:
     - clear
+    - purge
     - send
     - kick
     - ban
     - unban
     - lockdown\
 """
+
+from typing import Optional
 
 import discord
 from discord.ext import commands
@@ -57,6 +60,13 @@ class Mod(commands.Cog, name="ModCog"):
                     i += 1
         await ctx.send("Clear finished! :white_check_mark:", delete_after=1.5)
 
+    @commands.command(brief="Purges a channel")
+    async def purge(self, ctx: commands.Context):
+        "add a command to purge a channel"
+
+        deleted = await ctx.channel.purge()
+        await ctx.send(f"Deleted {deleted} message(s).", delete_after=10)
+
     @commands.has_permissions(send_messages=True)
     @commands.command(brief="sends a given number of messages")
     async def send(self, ctx: commands.Context, nbr: int, *, msg: str):
@@ -75,43 +85,35 @@ class Mod(commands.Cog, name="ModCog"):
 
     @commands.has_permissions(ban_members=True)
     @commands.command(brief="ban someone from the current guild")
-    async def ban(self, ctx: commands.Context, user: discord.Member, delete_delay: str = "", *, reason: str):
+    async def ban(self, ctx: commands.Context, members: commands.Greedy[discord.Member], delete_delay: Optional[int] = 3, *, reason: Optional[str]):
         "add command to ban someone from the current guild"
 
-        if delete_delay.isdigit():
-            if 0 <= int(delete_delay) <= 7:
-                # await ctx.send(f"banned {user} ({delete_delay} days worth of messages\
-                #     to delete) with reason: {' '.join(reason)}")
-                await ctx.guild.ban(user,
-                                    reason=reason and f"{reason} (on behalf of {ctx.author})",
-                                    delete_message_days=int(delete_delay))
-            else:
-                await ctx.send("Only able to delete messages between 0 and 7 days ago")
-                return
-        else:
-            reason = delete_delay + reason
-            # await ctx.send(f"banned {user} with reason: `{' '.join(reason)}`")
-            await ctx.guild.ban(user, reason=reason and f"{reason} (on behalf of {ctx.author})")
-
-        await ctx.send(f"user `{user}` banned!")
+        for member in members:
+            await member.ban(delete_message_days=delete_delay, reason=reason and f"{reason} (on behalf of {ctx.author})")
+            await ctx.send(f"user `{member}` banned!")
 
     @commands.has_permissions(ban_members=True)
     @commands.command(brief="unban someone from the current guild")
-    async def unban(self, ctx: commands.Context, user: discord.User, *, reason: str):
+    async def unban(self, ctx: commands.Context, users: commands.Greedy[discord.User], *, reason: Optional[str]):
         "add command to unban someone from the current guild"
 
-        await ctx.guild.unban(user, reason=reason and f"{reason} (on behalf of {ctx.author})")
+        for user in users:
+            await ctx.guild.unban(user, reason=reason and f"{reason} (on behalf of {ctx.author})")
+            await ctx.send(f"user `{user}` unbanned!")
 
     @commands.has_permissions(manage_roles=True)
-    @commands.command(brief="removes send messages rights to specified role", pass_context=False)
-    async def toggle_lockdown(self, targeted_role: discord.Role):
+    @commands.command(brief="removes send messages rights to specified role")
+    async def lockdown(self, ctx: commands.Context, targeted_role: discord.Role):
         "add command to removes send messages rights to specified role"
 
         perms = targeted_role.permissions
 
-        if perms.send_messages():
+        if perms.send_messages:
             perms.update(send_messages=False)
+            msg = "Lockdown mode activated."
         else:
             perms.update(send_messages=True)
+            msg = "Lockdown mode deactivated."
 
         await targeted_role.edit(permissions=perms)
+        await ctx.send(msg)
