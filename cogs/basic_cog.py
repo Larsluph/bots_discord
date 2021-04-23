@@ -17,9 +17,10 @@ from cogs import utils
 class Misc(commands.Cog, name="MiscCog"):
     "Misc d.py cog (see module docstring for more info)"
 
+    name = "MiscCog"
+
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.cog_name = "MiscCog"
 
         # @bot.check
         # async def is_owner(ctx: commands.Context):
@@ -110,7 +111,7 @@ class Misc(commands.Cog, name="MiscCog"):
 
     @commands.command(brief="disconnects the bot from Discord")
     async def logout(self, ctx: commands.Context):
-        "add command to disconnect instance from Discord"
+        "disconnect bot instance from Discord"
 
         await self.bot.change_presence(status=discord.Status.offline, activity=None)
         await ctx.send("Disconnected!")
@@ -120,7 +121,7 @@ class Misc(commands.Cog, name="MiscCog"):
 
     @commands.command(brief="test parsing data")
     async def parse(self, ctx: commands.Context, *args):
-        "add command to debug msg parsing"
+        "debug msg parsing"
 
         for data in args:
             await ctx.send(f"`{data}`: {type(data)}")

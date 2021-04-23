@@ -16,14 +16,13 @@ from cogs import utils
 class Spam(commands.Cog, name="SpamCog"):
     "Spam d.py cog (see module docstring for more info)"
 
+    name = "SpamCog"
     delay = 1
     # spam_status = False
     contexts = dict()
 
     def __init__(self, bot):
         self.bot = bot
-        self.cog_name = "SpamCog"
-
         self.spam_loop.start()
 
     @tasks.loop(seconds=1)
