@@ -40,7 +40,15 @@ class Misc(commands.Cog, name="MiscCog"):
 
             ## send error msg in chat
             if isinstance(error, commands.CheckFailure):
-                msg = "The command requires a check that didn't pass."
+                if isinstance(error, commands.MissingPermissions):
+                    msg = "You don't have enough permissions!"
+                elif isinstance(error, commands.BotMissingPermissions):
+                    msg = "I don't have enough permissions!"
+                else:
+                    msg = "The command requires a check that didn't pass."
+
+                if hasattr(error, "missing_perms"):
+                    msg += " Missing:\n- "+"\n- ".join(*error.missing_perms)
 
 
             elif isinstance(error, commands.CommandNotFound):
@@ -70,7 +78,8 @@ class Misc(commands.Cog, name="MiscCog"):
                 elif "50007" in error.args[0]:
                     msg = "Can't message user ATM."
                 elif "50013" in error.args[0]:
-                    msg = "You either don't have enough permissions or the targeted user has higher privileges than you."
+                    msg = "You either don't have enough permissions or\
+the targeted user has higher privileges than you."
 
 
             else:
