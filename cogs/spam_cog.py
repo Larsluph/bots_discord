@@ -21,8 +21,6 @@ class Spam(commands.Cog, name="SpamCog"):
 
     def __init__(self, bot):
         self.bot = bot
-        self.cog_name = "SpamCog"
-
         self.spam_loop.start()
 
     @tasks.loop(seconds=1)

@@ -17,9 +17,10 @@ from cogs import utils
 class Misc(commands.Cog, name="MiscCog"):
     "Misc d.py cog (see module docstring for more info)"
 
+    name = "MiscCog"
+
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.cog_name = "MiscCog"
 
         # @bot.check
         # async def is_owner(ctx: commands.Context):
@@ -39,7 +40,15 @@ class Misc(commands.Cog, name="MiscCog"):
 
             ## send error msg in chat
             if isinstance(error, commands.CheckFailure):
-                msg = "The command requires a check that didn't pass."
+                if isinstance(error, commands.MissingPermissions):
+                    msg = "You don't have enough permissions!"
+                elif isinstance(error, commands.BotMissingPermissions):
+                    msg = "I don't have enough permissions!"
+                else:
+                    msg = "The command requires a check that didn't pass."
+
+                if hasattr(error, "missing_perms"):
+                    msg += " Missing:\n- "+"\n- ".join(*error.missing_perms)
 
 
             elif isinstance(error, commands.CommandNotFound):
@@ -69,7 +78,8 @@ class Misc(commands.Cog, name="MiscCog"):
                 elif "50007" in error.args[0]:
                     msg = "Can't message user ATM."
                 elif "50013" in error.args[0]:
-                    msg = "You either don't have enough permissions or the targeted user has higher privileges than you."
+                    msg = "You either don't have enough permissions or\
+the targeted user has higher privileges than you."
 
 
             else:
@@ -110,7 +120,7 @@ class Misc(commands.Cog, name="MiscCog"):
 
     @commands.command(brief="disconnects the bot from Discord")
     async def logout(self, ctx: commands.Context):
-        "add command to disconnect instance from Discord"
+        "disconnect bot instance from Discord"
 
         await self.bot.change_presence(status=discord.Status.offline, activity=None)
         await ctx.send("Disconnected!")
@@ -120,7 +130,7 @@ class Misc(commands.Cog, name="MiscCog"):
 
     @commands.command(brief="test parsing data")
     async def parse(self, ctx: commands.Context, *args):
-        "add command to debug msg parsing"
+        "debug msg parsing"
 
         for data in args:
             await ctx.send(f"`{data}`: {type(data)}")
