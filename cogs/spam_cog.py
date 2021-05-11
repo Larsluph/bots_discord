@@ -16,8 +16,7 @@ from cogs import utils
 class Spam(commands.Cog, name="SpamCog"):
     "Spam d.py cog (see module docstring for more info)"
 
-    delay = 1
-    # spam_status = False
+    is_spamming = False
     contexts = dict()
 
     def __init__(self, bot):
@@ -29,8 +28,11 @@ class Spam(commands.Cog, name="SpamCog"):
     @tasks.loop(seconds=1)
     async def spam_loop(self):
         "sends a message to every registered contexts"
-        for ctx in self.contexts:
-            await ctx.send(self.contexts[ctx])
+        for id, text in self.contexts.items():
+            if text is None:
+               continue
+            ctx = self.bot.get_channel(int(id))
+            await ctx.send(text)
 
     @spam_loop.before_loop
     async def wait_for_bot_ready(self):
@@ -44,38 +46,30 @@ class Spam(commands.Cog, name="SpamCog"):
             if self.contexts[ctx] is None:
                 del self.contexts[ctx]
 
-    # async def spam_loop(self):
-    #     "sends a message to every registered contexts"
-    #     if self.spam_status:
-    #         return
-
-    #     self.spam_status = True
-    #     while self.contexts.keys():
-    #         for ctx in self.contexts:
-    #             if self.contexts[ctx] is None:
-    #                 del self.contexts[ctx]
-    #                 continue
-
-    #             await ctx.send(self.contexts[ctx])
-
-    #         await asyncio.sleep(self.delay)
-
-    #     self.spam_status = False
+        if len(self.contexts) == 0:
+            self.is_spamming = False
 
     @commands.command(brief="start spamming given text every second")
     async def start(self, ctx: commands.Context, *text):
         "add a command to start spamming"
 
         if text[0] == "dm":
-            ctx = await utils.auto_convert_obj(self.bot, ctx, text[1])
+            user = await utils.auto_convert_obj(self.bot, ctx, text[1])
+            if (channel := user.dm_channel) is None:
+                id = user.create_dm().id
+            else:
+                id = channel.id
             print(f"Starting spam in dm: {ctx}")
-            text = " ".join(map(str, text[2:]))
+            text = text[2:]
         else:
+            id = ctx.channel.id
             print("Starting spam in current context")
-            text = " ".join(map(str, text))
 
-        self.contexts[ctx] = text
-        await self.spam_loop()
+        self.contexts[str(id)] = " ".join(map(str, text))
+
+        if not self.is_spamming:
+           self.is_spamming = True
+           self.spam_loop.start()
 
     @commands.command(brief="stop spamming")
     async def stop(self, ctx: commands.Context, target: Union[discord.User, discord.TextChannel, int] = None):
@@ -88,12 +82,13 @@ class Spam(commands.Cog, name="SpamCog"):
         else:
             chan_id = target.id
 
-        self.contexts[chan_id] = None
-        await ctx.send("Stopped spamming!")
+        self.contexts[str(chan_id)] = None
+        await ctx.send(f"Stopped spamming in channel {chan_id}!")
         print("Stopped spamming")
 
-    @commands.command(brief="force stop spams", pass_context=False)
-    async def stopall(self):
+    @commands.command(brief="force stop spams")
+    async def stopall(self, ctx: commands.Context):
         "add a command to force stop every spam in progress"
+        self.is_spamming = False
         self.spam_loop.cancel()
         self.contexts = dict()

@@ -114,7 +114,7 @@ class Misc(commands.Cog, name="MiscCog"):
 
         await self.bot.change_presence(status=discord.Status.offline, activity=None)
         await ctx.send("Disconnected!")
-        await self.bot.logout()
+        await self.bot.close()
         print("[LOGS] Connection terminated")
         sys.exit(0)
 
