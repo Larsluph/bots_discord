@@ -92,12 +92,13 @@ class Spam(commands.Cog, name="SpamCog"):
 
         if target is None:
             chan_id = ctx.channel.id
+            print("Stopped spamming in current context")
         else:
             chan_id = target.id
+            print(f"Stopped spamming in: {target}")
 
         self.contexts[str(chan_id)] = None
         await ctx.send(f"Stopped spamming in channel {chan_id}!")
-        print("Stopped spamming")
 
     @commands.command(brief="force stop all spams")
     async def stopall(self, _: commands.Context):
