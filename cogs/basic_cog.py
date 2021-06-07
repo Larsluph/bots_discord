@@ -34,7 +34,7 @@ class Misc(commands.Cog, name="MiscCog"):
 
             # print debug
             print("=====")
-            print("caught error:", type(error))
+            print("Error detected:", type(error))
             print("- " + "\n- ".join(error.args))
 
             msg = str()
@@ -45,11 +45,17 @@ class Misc(commands.Cog, name="MiscCog"):
                     msg = "You don't have enough permissions!"
                 elif isinstance(error, commands.BotMissingPermissions):
                     msg = "I don't have enough permissions!"
+                elif isinstance(error, commands.MissingRole):
+                    msg = "You're missing roles!"
+                elif isinstance(error, commands.BotMissingRole):
+                    msg = "I'm missing roles!"
                 else:
                     msg = "The command requires a check that didn't pass."
 
                 if hasattr(error, "missing_perms"):
-                    msg += " Missing:\n- " + "\n- ".join(*error.missing_perms)
+                    msg += " Missing permissions:\n- " + "\n- ".join(*error.missing_perms)
+                if hasattr(error, "missing_role"):
+                    msg += " Missing roles:\n- " + "\n- ".join(*error.missing_role)
 
             elif isinstance(error, commands.CommandNotFound):
                 msg = "Unknown command. Try calling help command"

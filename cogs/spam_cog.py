@@ -4,7 +4,7 @@ Cog to implement spamming commands:
     - stop\
 """
 
-from typing import Union
+from typing import Union, Optional
 
 import discord
 from discord.ext import commands, tasks
@@ -18,6 +18,11 @@ class Spam(commands.Cog, name="SpamCog"):
 
     def __init__(self, bot):
         self.bot = bot
+
+    def force_stop(self):
+        self.is_spamming = False
+        self.spam_loop.cancel()
+        self.contexts.clear()
 
     @tasks.loop(seconds=1)
     async def spam_loop(self):
@@ -58,24 +63,22 @@ class Spam(commands.Cog, name="SpamCog"):
 
         self.force_stop()
 
-    def force_stop(self):
-        self.is_spamming = False
-        self.spam_loop.cancel()
-        self.contexts = dict()
-
     @commands.command(brief="start spamming given text every second")
-    async def start(self, ctx: commands.Context, channel: Union[discord.TextChannel, discord.User], *, text):
+    async def start(self,
+                    ctx: commands.Context,
+                    channel: Optional[Union[discord.User, discord.TextChannel]] = None,
+                    *, text):
         """add a command to start spamming"""
 
         if isinstance(channel, discord.User):
-            if (dm_channel := channel.dm_channel) is None:
-                chan_id = dm_channel.create_dm().id
-            else:
-                chan_id = channel.id
+            chan_id = (await channel.create_dm()).id
             print(f"Starting spam in dm: {channel}")
+        elif isinstance(channel, discord.TextChannel):
+            chan_id = channel.id
+            print(f"Starting spam in channel: {channel}")
         else:
             chan_id = ctx.channel.id
-            print(f"Starting spam in channel {channel}")
+            print("Starting spam in current context")
 
         self.contexts[str(chan_id)] = text
 
@@ -84,13 +87,11 @@ class Spam(commands.Cog, name="SpamCog"):
             self.spam_loop.start()
 
     @commands.command(brief="stop spamming")
-    async def stop(self, ctx: commands.Context, target: Union[discord.User, discord.TextChannel, int] = None):
+    async def stop(self, ctx: commands.Context, target: Optional[Union[discord.User, discord.TextChannel]] = None):
         """add a command to stop spam user"""
 
         if target is None:
             chan_id = ctx.channel.id
-        elif isinstance(target, int):
-            chan_id = target
         else:
             chan_id = target.id
 
