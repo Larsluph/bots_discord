@@ -15,7 +15,7 @@ from discord.ext import commands
 
 
 class Mod(commands.Cog, name="ModCog"):
-    "Mod d.py cog (see module docstring for more info)"
+    """Mod d.py cog (see module docstring for more info)"""
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -27,23 +27,21 @@ class Mod(commands.Cog, name="ModCog"):
                     nbr: int,
                     person: commands.Greedy[Member],
                     channel: Optional[TextChannel]):
-        "clear a given number of messages in the given channel"
+        """clear a given number of messages in the given channel"""
 
         if channel:
             target = channel
         else:
             target = ctx.channel
 
-        check = lambda msg: msg.author in person if person else True
-
-        deleted = await target.purge(limit=min(100, nbr+1), check=check)
+        deleted = await target.purge(limit=min(100, nbr+1), check=lambda msg: msg.author in person if person else True)
 
         await ctx.send(f"{len(deleted)} messages deleted! :white_check_mark:", delete_after=2)
 
     @commands.has_permissions(send_messages=True)
     @commands.command(brief="sends a given number of messages")
     async def send(self, ctx: commands.Context, nbr: int, *, content: str):
-        "sends a given number of messages"
+        """sends a given number of messages"""
 
         for _ in range(int(nbr)):
             await ctx.send(content)
@@ -51,7 +49,7 @@ class Mod(commands.Cog, name="ModCog"):
     @commands.has_permissions(kick_members=True)
     @commands.command(brief="kick someone from the current guild")
     async def kick(self, ctx: commands.Context, user: Member, *, reason: str):
-        "kick someone from the current guild"
+        """kick someone from the current guild"""
 
         await ctx.guild.kick(user, reason=reason and f"{reason} (on behalf of {ctx.author})")
         await ctx.send(f"user `{user}` kicked!")
@@ -62,7 +60,7 @@ class Mod(commands.Cog, name="ModCog"):
                   members: commands.Greedy[Member],
                   delete_delay: Optional[int] = 3, *,
                   reason: Optional[str]):
-        "ban someone from the current guild"
+        """ban someone from the current guild"""
 
         for member in members:
             await member.ban(
@@ -76,7 +74,7 @@ class Mod(commands.Cog, name="ModCog"):
     async def unban(self, ctx: commands.Context,
                     users: commands.Greedy[User], *,
                     reason: Optional[str]):
-        "unban someone from the current guild"
+        """unban someone from the current guild"""
 
         for user in users:
             await ctx.guild.unban(user, reason=reason and f"{reason} (on behalf of {ctx.author})")

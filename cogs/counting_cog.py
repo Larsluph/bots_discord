@@ -10,7 +10,7 @@ from discord.ext import commands
 
 
 class Counting(commands.Cog, name="CountingCog"):
-    "Counting game d.py cog (see module docstring for more info)"
+    """Counting game d.py cog (see module docstring for more info)"""
 
     name = "CountingCog"
     save_location = "data\\counting_data.json"
@@ -20,7 +20,7 @@ class Counting(commands.Cog, name="CountingCog"):
         self.channels = self.load_save()
 
     def load_save(self) -> dict:
-        "loads previous instances' data"
+        """loads previous instances' data"""
         result = dict()
 
         if os.path.exists(self.save_location):
@@ -30,19 +30,19 @@ class Counting(commands.Cog, name="CountingCog"):
         return result
 
     def save_count(self):
-        "saves channel count"
+        """saves channel count"""
         with open(self.save_location, 'w') as file:
             json.dump(self.channels, file)
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        "validates game progression"
+        """validates game progression"""
         if message.author == self.bot:
             return
 
         msg = message.content.strip()
         # channel = message.channel
-        chan_id = message.channel.id
+        chan_id = str(message.channel.id)
         # if channel is configured and contains only digits
         if chan_id in self.channels and msg.isdigit():
             if int(msg) == self.channels[chan_id]+1:
@@ -61,7 +61,7 @@ class Counting(commands.Cog, name="CountingCog"):
 
     @commands.command(brief="setup TextChannel to listen to")
     async def setup(self, ctx: commands.Context, channel: discord.TextChannel):
-        "setup TextChannel to listen to for the Counting Game"
+        """setup TextChannel to listen to for the Counting Game"""
         channel_id = channel.id
         self.channels[channel_id] = 0
         print(f"setup success: {channel}, #{channel_id}")
@@ -70,6 +70,6 @@ class Counting(commands.Cog, name="CountingCog"):
 
     @commands.command(brief="reload data from the save file")
     async def reload(self, ctx: commands.Context):
-        "add a command to reload data from the save file"
+        """add a command to reload data from the save file"""
         self.channels = self.load_save()
         await ctx.send("reload finished!")

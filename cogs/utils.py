@@ -7,7 +7,11 @@ from discord.ext import commands
 
 from typing import Union
 
-async def auto_convert_obj(bot: commands.Bot, ctx: commands.Context, data: str) -> Union[discord.User, discord.TextChannel, int, str]:
+
+async def auto_convert_obj(
+        bot: commands.Bot,
+        ctx: commands.Context,
+        data: str) -> Union[discord.User, discord.TextChannel, int, str]:
     """\
     convert `data` to DiscordType object:
         - User

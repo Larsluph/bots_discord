@@ -15,17 +15,16 @@ from cogs import utils
 
 
 class Misc(commands.Cog, name="MiscCog"):
-    "Misc d.py cog (see module docstring for more info)"
+    """Misc d.py cog (see module docstring for more info)"""
 
     name = "MiscCog"
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-        # @bot.check
-        # async def is_owner(ctx: commands.Context):
-        #     user = self.bot.get_user(ctx.author.id)
-        #     return await self.bot.is_owner(user) if user is not None else False
+        @bot.check
+        async def is_owner(ctx: commands.Context):
+            return ctx.author.id == 292714635394809876
 
         @bot.event
         async def on_command_error(ctx: commands.Context, error: commands.CommandError):
@@ -33,12 +32,14 @@ class Misc(commands.Cog, name="MiscCog"):
             if isinstance(error, commands.CommandInvokeError):
                 error = error.original
 
-            ## print debug
+            # print debug
             print("=====")
             print("caught error:", type(error))
             print("- " + "\n- ".join(error.args))
 
-            ## send error msg in chat
+            msg = str()
+
+            # send error msg in chat
             if isinstance(error, commands.CheckFailure):
                 if isinstance(error, commands.MissingPermissions):
                     msg = "You don't have enough permissions!"
@@ -48,12 +49,10 @@ class Misc(commands.Cog, name="MiscCog"):
                     msg = "The command requires a check that didn't pass."
 
                 if hasattr(error, "missing_perms"):
-                    msg += " Missing:\n- "+"\n- ".join(*error.missing_perms)
-
+                    msg += " Missing:\n- " + "\n- ".join(*error.missing_perms)
 
             elif isinstance(error, commands.CommandNotFound):
                 msg = "Unknown command. Try calling help command"
-
 
             elif isinstance(error, commands.UserInputError):
                 if isinstance(error, commands.MissingRequiredArgument):
@@ -68,7 +67,6 @@ class Misc(commands.Cog, name="MiscCog"):
                     msg = "Error while parsing argument(s)."
                 msg += " Check command syntax and try again."
 
-
             elif isinstance(error, discord.HTTPException):
                 if "10013" in error.args[0]:
                     msg = "Unknown User"
@@ -81,24 +79,23 @@ class Misc(commands.Cog, name="MiscCog"):
                     msg = "You either don't have enough permissions or\
 the targeted user has higher privileges than you."
 
-
             else:
                 print("Unhandled")
                 msg = f"Unhandled error: {error}"
-            ## END
+            # END
 
             print("=====")
-            await ctx.send(msg)
+            await ctx.reply(msg)
 
     @commands.Cog.listener()
     async def on_connect(self):
-        "logging func when connecting to Discord API Gateway"
+        """logging func when connecting to Discord API Gateway"""
 
         print('[LOGS] Connecting to discord')
 
     @commands.Cog.listener()
     async def on_ready(self):
-        "logging func when connection is ready"
+        """logging func when connection is ready"""
 
         print("[LOGS] Bot is ready!")
         print(
@@ -113,14 +110,13 @@ the targeted user has higher privileges than you."
 
     @commands.Cog.listener()
     async def on_resumed(self):
-        "logging func when connection resumed after being interrupted"
+        """logging func when connection resumed after being interrupted"""
 
         print("\n[LOGS] Bot has resumed session!")
 
-
     @commands.command(brief="disconnects the bot from Discord")
     async def logout(self, ctx: commands.Context):
-        "disconnect bot instance from Discord"
+        """disconnect bot instance from Discord"""
 
         await self.bot.change_presence(status=discord.Status.offline, activity=None)
         await ctx.send("Disconnected!")
@@ -130,7 +126,7 @@ the targeted user has higher privileges than you."
 
     @commands.command(brief="test parsing data")
     async def parse(self, ctx: commands.Context, *args):
-        "debug msg parsing"
+        """debug msg parsing"""
 
         for data in args:
             await ctx.send(f"`{data}`: {type(data)}")

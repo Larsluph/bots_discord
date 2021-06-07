@@ -1,4 +1,4 @@
-"instanciate Super Mod Discord bot"
+"""instanciate Super Mod Discord bot"""
 
 import logging
 import os
@@ -12,7 +12,7 @@ from cogs.mod_cog import Mod
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
 handler = logging.FileHandler(
-    filename=time.strftime("logs\\mod_bot_%Y-%m-%d_%H-%M-%S.log"),
+    filename=time.strftime(os.path.join("logs", "mod_bot_%Y-%m-%d_%H-%M-%S.log")),
     encoding='utf-8',
     mode='w'
 )
