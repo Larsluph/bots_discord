@@ -1,9 +1,8 @@
-"""Outspeed people and sends a message every time someone starts to type in a channel"""
-
-import datetime
 import logging
 import os
 import time
+from collections import deque
+from typing import Iterable
 
 import discord
 from dotenv import load_dotenv
@@ -12,6 +11,8 @@ load_dotenv()
 
 
 class CustomClient(discord.Client):
+    to_clean_queue: Iterable[discord.Message] = deque()
+
     async def on_ready(self):
         print("bot ready")
         await self.change_presence(
@@ -19,22 +20,27 @@ class CustomClient(discord.Client):
             activity=discord.Game(name="with the API")
         )
 
-    @staticmethod
-    async def on_typing(channel: discord.TextChannel, user: discord.Member, _: datetime.datetime):
-        print(f"{user} is typing")
-        await channel.send(f"<@{user.id}> \U0001F440", delete_after=1.5)
+    async def on_message(self, message: discord.Message):
+        if message.author == self.user:
+            return
+
+        # TODO: auto clean config (timeout)
+        # TODO: task to clean queue if timeout expired
 
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
 handler = logging.FileHandler(
-    filename=time.strftime(os.path.join("logs", "outspeeder_%Y-%m-%d_%H-%M-%S.log")),
+    filename=time.strftime(os.path.join("logs", "auto_cleaner_%Y-%m-%d_%H-%M-%S.log")),
     encoding='utf-8',
     mode='w'
 )
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-client = CustomClient(max_messages=None, intents=discord.Intents.default())
+intent = discord.Intents.default()
+intent.messages = True
 
-client.run(os.environ.get("Outspeeder"))
+client = CustomClient(max_messages=None, intents=intent)
+
+client.run(os.environ.get("AutoCleaner"))

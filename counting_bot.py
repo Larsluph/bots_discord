@@ -5,9 +5,12 @@ import os
 import time
 
 from discord.ext import commands
+from dotenv import load_dotenv
 
 from cogs.basic_cog import Misc
 from cogs.counting_cog import Counting
+
+load_dotenv()
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)

@@ -6,9 +6,12 @@ import time
 
 import discord
 from discord.ext import commands
+from dotenv import load_dotenv
 
 from cogs.basic_cog import Misc
 from cogs.retard_cog import Retard
+
+load_dotenv()
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
@@ -23,7 +26,7 @@ logger.addHandler(handler)
 intents = discord.Intents.all()
 
 bot = commands.Bot(
-    command_prefix="s$",
+    command_prefix="$delay ",
     case_insensitive=True,
     description="Bot that tracks users' response delay",
     intents=intents

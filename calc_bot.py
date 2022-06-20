@@ -19,22 +19,33 @@ class CustomClient(discord.Client):
             activity=discord.Game(name="with the API")
         )
 
-    @staticmethod
-    async def on_typing(channel: discord.TextChannel, user: discord.Member, _: datetime.datetime):
-        print(f"{user} is typing")
-        await channel.send(f"<@{user.id}> \U0001F440", delete_after=1.5)
+    async def on_message(self, message: discord.Message):
+        if message.author == self.user or not message.content.startswith("c! "):
+            return
+
+        data = ""
+        try:
+            data = str(eval(message.content[3:]))
+        except Exception as err:
+            data = str(err)
+            await message.add_reaction("\u274c")
+        finally:
+            await message.channel.send(data)
 
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
 handler = logging.FileHandler(
-    filename=time.strftime(os.path.join("logs", "outspeeder_%Y-%m-%d_%H-%M-%S.log")),
+    filename=time.strftime(os.path.join("logs", "mathcalc_%Y-%m-%d_%H-%M-%S.log")),
     encoding='utf-8',
     mode='w'
 )
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-client = CustomClient(max_messages=None, intents=discord.Intents.default())
+intent = discord.Intents.default()
+intent.messages = True
 
-client.run(os.environ.get("Outspeeder"))
+client = CustomClient(max_messages=None, intents=intent)
+
+client.run(os.environ.get("MathCalc"))

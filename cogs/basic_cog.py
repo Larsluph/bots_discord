@@ -19,12 +19,13 @@ class Misc(commands.Cog, name="MiscCog"):
 
     name = "MiscCog"
 
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: commands.Bot, enable_owner_check: bool = True):
         self.bot = bot
 
-        @bot.check
-        async def is_owner(ctx: commands.Context):
-            return ctx.author.id == 292714635394809876
+        if enable_owner_check:
+            @bot.check
+            async def is_owner(ctx: commands.Context):
+                return ctx.author.id in (292714635394809876, 513347149308624896)
 
         @bot.event
         async def on_command_error(ctx: commands.Context, error: commands.CommandError):
