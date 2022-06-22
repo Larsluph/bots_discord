@@ -33,7 +33,7 @@ class CustomClient(discord.Client):
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
 handler = logging.FileHandler(
-    filename=time.strftime(os.path.join('logs', "outspeeder_%Y-%m-%d_%H-%M-%S.log")),
+    filename=time.strftime(os.path.join('logs', "auto_feur_%Y-%m-%d_%H-%M-%S.log")),
     encoding='utf-8',
     mode='w'
 )
