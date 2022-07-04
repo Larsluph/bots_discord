@@ -1,4 +1,4 @@
-"""instanciate Spam Discord bot"""
+"""instanciate Retard Discord bot"""
 
 import logging
 import os
