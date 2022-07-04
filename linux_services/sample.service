@@ -1,8 +1,8 @@
 [Unit]
 Description=Python service for discord bot
-After=network.target
+After=network-online.target
 
 [Service]
 User=larsluph
-Type=forking
-ExecStart=python3.8 {script_path}
+ExecStart=python3 {script_path}
+WorkingDirectory={workingDirectory}
