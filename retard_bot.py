@@ -4,6 +4,7 @@ import logging
 import os
 import time
 
+from discord import Intents
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -22,10 +23,15 @@ handler = logging.FileHandler(
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
+intents: Intents = Intents.none()
+intents.members = True
+intents.messages = True
+
 bot = commands.Bot(
     command_prefix="$delay ",
     case_insensitive=True,
-    description="Bot that tracks users' response delay"
+    description="Bot that tracks users' response delay",
+    intents=Intents.all()
 )
 
 # cogs setup
