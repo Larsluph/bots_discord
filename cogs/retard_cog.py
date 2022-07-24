@@ -4,7 +4,6 @@ Cog to implement delay tracking features
 
 import logging
 import sqlite3
-from datetime import timedelta
 from os.path import exists, join
 
 from discord import Embed, Member, Message
@@ -13,19 +12,21 @@ from discord.ext import commands
 
 class Queries:
     CREATE_DELAY = 'CREATE TABLE delays(' \
-                   '"id" INTEGER PRIMARY KEY AUTOINCREMENT,' \
-                   '"user" INTEGER NOT NULL,' \
+                   '"id" INTEGER PRIMARY KEY AUTOINCREMENT, ' \
+                   '"user" INTEGER NOT NULL, ' \
                    '"seconds_late" INTEGER NOT NULL);'
 
     INSERT_DELAY = "INSERT INTO delays(user, seconds_late)" \
                    "VALUES (?, ?);"
 
-    SELECT_DELAY_BY_USER = "SELECT AVG(seconds_late) average FROM delays" \
-                           "WHERE user = ?" \
+    SELECT_DELAY_BY_USER = "SELECT SUM(seconds_late) delay_sum, AVG(seconds_late) delay_avg FROM delays " \
+                           "WHERE user = ? " \
                            "GROUP BY user;"
-                           
-    SELECT_DELAYS = "SELECT AVG(seconds_late) average FROM delays" \
-                    "GROUP BY user;"
+
+    SELECT_TOP5 = "SELECT user user_id, SUM(seconds_late) total_delay FROM delays " \
+                  "GROUP BY user " \
+                  "ORDER BY total_delay DESC " \
+                  "LIMIT 5;"
 
 
 class Retard(commands.Cog, name="RetardCog"):
@@ -68,34 +69,51 @@ class Retard(commands.Cog, name="RetardCog"):
     @commands.command()
     async def register(self, ctx: commands.Context, msg_base: Message, msg_late: Message):
         author: Member = msg_late.author
-        delta: timedelta = msg_late.created_at - msg_base.created_at
+        delta = (msg_late.created_at - msg_base.created_at).total_seconds()
 
         # register delay
-        self.sql(Queries.INSERT_DELAY, author.id, delta.total_seconds())
+        self.sql(Queries.INSERT_DELAY, author.id, delta)
+
+        await ctx.send(f"Delay registered ! ({delta} second{'s' if delta > 1 else ''})")
 
     @commands.command()
     async def stats(self, ctx: commands.Context, member: Member = None):
-        raise NotImplementedError
-
         if member is None:
             # global stats
-            stats = self.sql(Queries.SELECT_DELAYS)
+            embed = self.gen_leaderboard()
         else:
             # user stats
-            stats = self.sql(Queries.SELECT_DELAY_BY_USER, member.id)
+            embed = self.gen_user_stats(member)
 
-    @staticmethod
-    def gen_embed():
+        await ctx.send(embed=embed)
+
+    def gen_leaderboard(self) -> Embed:
+        leaderboard = list(map(lambda x: (self.bot.get_user(x[0]), x[1]),
+                               self.sql(Queries.SELECT_TOP5)))
+
+        top_user = leaderboard[0][0]
+        thumbnail = top_user.avatar_url
+
         # https://cog-creators.github.io/discord-embed-sandbox/
-        embed = Embed(title="RetardBot",
-                      description="Here's a recap of the delays registered for <@!user>")
-        title_url: str
-        
-        color: str
-        
-        # top right icon
-        thumbnail: str
-        
-        author_name: str
-        author_link: str
-        author_avatar: str
+        embed = Embed(title="Les plus GROS retardataires",
+                      description="pour ceux qui touchent trop d'herbe",
+                      color=0xc27c0e)
+        if thumbnail is not None:
+            embed.set_thumbnail(url=thumbnail)
+        for rank, (user, total_delay) in enumerate(leaderboard, start=1):
+            embed.add_field(name=f"{rank}. {user}", value=f"{total_delay}", inline=False)
+        embed.set_footer(text="ici régis les plus gros nonolife")
+        return embed
+
+    def gen_user_stats(self, member: Member) -> Embed:
+        query = self.sql(Queries.SELECT_DELAY_BY_USER, member.id)
+
+        if len(query) != 1:
+            print("Invalid DB response:", query, sep="\n")
+
+        embed = Embed(title=f"User stats for {member.display_name}")
+        embed.set_thumbnail(url=member.avatar_url)
+        embed.add_field(name="Somme des retards", value=f"{query[0]}", inline=False)
+        embed.add_field(name="Moyenne des retards", value=f"{query[1]}", inline=False)
+
+        return embed
