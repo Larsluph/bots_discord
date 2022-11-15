@@ -34,9 +34,9 @@ bot = commands.Bot(
 )
 
 
-async def main(b: commands.Bot):
-    await b.add_cog(Misc(b))
-    await b.add_cog(Mod(b))
-    await b.start(os.environ.get("SuperMod"))
+async def main():
+    await bot.add_cog(Misc(b))
+    await bot.add_cog(Mod(b))
+    await bot.start(os.environ.get("SuperMod"))
 
-asyncio.run(main(bot))
+asyncio.run(main())

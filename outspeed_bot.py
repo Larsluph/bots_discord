@@ -1,5 +1,5 @@
 """Outspeed people and sends a message every time someone starts to type in a channel"""
-
+import asyncio
 import datetime
 import logging
 import os
@@ -37,4 +37,8 @@ logger.addHandler(handler)
 
 client = CustomClient(max_messages=None, intents=discord.Intents.default())
 
-client.run(os.environ.get("Outspeeder"))
+
+async def main():
+    await client.start(os.environ.get("Outspeeder"))
+
+asyncio.run(main())

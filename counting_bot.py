@@ -1,9 +1,10 @@
 """instanciate Counting Game Discord bot"""
-
+import asyncio
 import logging
 import os
 import time
 
+from discord import Intents
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -24,11 +25,16 @@ logger.addHandler(handler)
 
 bot = commands.Bot(
     command_prefix="c!",
-    description="Lets you play the counting game on Discord!"
+    description="Lets you play the counting game on Discord!",
+    intents=Intents.all()
 )
 
-# cogs setup
-bot.add_cog(Misc(bot))
-bot.add_cog(Counting(bot))
 
-bot.run(os.environ.get('CountingBot'))
+async def main():
+    # cogs setup
+    await bot.add_cog(Misc(bot))
+    await bot.add_cog(Counting(bot))
+
+    await bot.start(os.environ.get('CountingBot'))
+
+asyncio.run(main())

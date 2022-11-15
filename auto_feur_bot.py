@@ -1,5 +1,5 @@
 """Outspeed people and sends "feur" every time someone ends a message with "quoi" """
-
+import asyncio
 import datetime
 import logging
 import os
@@ -23,9 +23,12 @@ class CustomClient(discord.Client):
             activity=discord.Game(name="with the API")
         )
 
-    @staticmethod
-    async def on_message(message: discord.Message):
-        for k, v in self.PATTERNS:
+    async def on_message(self, message: discord.Message):
+        if message.author == self.user:
+            return
+
+        print("on_message")
+        for k, v in self.PATTERNS.items():
             if message.content.endswith(k):
                 await message.channel.send(v)
 
@@ -40,6 +43,10 @@ handler = logging.FileHandler(
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-client = CustomClient(max_messages=None, intents=discord.Intents.default())
+client = CustomClient(max_messages=None, intents=discord.Intents.all())
 
-client.run(os.environ.get("AutoFeur"))
+
+async def main():
+    await client.start(os.environ.get("AutoFeur"))
+
+asyncio.run(main())

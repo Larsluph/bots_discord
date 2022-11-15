@@ -1,5 +1,5 @@
 """AudioGuard Discord bot"""
-
+import asyncio
 import logging
 import os
 import time
@@ -32,8 +32,12 @@ bot = commands.Bot(
     intents=intents
 )
 
-# cogs setup
-bot.add_cog(Misc(bot))
-bot.add_cog(AudioGuardCog(bot))
 
-bot.run(os.environ.get('AudioGuard'))
+async def main():
+    # cogs setup
+    await bot.add_cog(Misc(bot))
+    await bot.add_cog(AudioGuardCog(bot))
+
+    await bot.start(os.environ.get('AudioGuard'))
+
+asyncio.run(main())

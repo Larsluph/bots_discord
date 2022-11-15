@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 import time
@@ -38,9 +39,10 @@ handler = logging.FileHandler(
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-intent = discord.Intents.default()
-intent.messages = True
+client = CustomClient(max_messages=None, intents=discord.Intents.all())
 
-client = CustomClient(max_messages=None, intents=intent)
 
-client.run(os.environ.get("AutoCleaner"))
+async def main():
+    await client.start(os.environ.get("AutoCleaner"))
+
+asyncio.run(main())

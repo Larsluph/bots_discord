@@ -1,5 +1,5 @@
 """instanciate Retard Discord bot"""
-
+import asyncio
 import logging
 import os
 import time
@@ -23,19 +23,21 @@ handler = logging.FileHandler(
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-intents: Intents = Intents.none()
-intents.members = True
-intents.messages = True
+intents = Intents.all()
 
 bot = commands.Bot(
     command_prefix="$delay ",
     case_insensitive=True,
     description="Bot that tracks users' response delay",
-    intents=Intents.all()
+    intents=intents
 )
 
-# cogs setup
-bot.add_cog(Misc(bot))
-bot.add_cog(Retard(bot))
 
-bot.run(os.environ.get('RetardBot'))
+async def main():
+    # cogs setup
+    await bot.add_cog(Misc(bot))
+    await bot.add_cog(Retard(bot))
+
+    await bot.start(os.environ.get('RetardBot'))
+
+asyncio.run(main())
