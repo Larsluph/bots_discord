@@ -10,7 +10,7 @@ Cog to implement mod commands:
 
 from typing import Optional
 
-from discord import Member, TextChannel, User
+from discord import Member, Message, TextChannel, User
 from discord.ext import commands
 
 
@@ -29,12 +29,28 @@ class Mod(commands.Cog, name="ModCog"):
                     channel: Optional[TextChannel]):
         """clear a given number of messages in the given channel"""
 
-        if channel:
-            target = channel
-        else:
-            target = ctx.channel
+        target = channel if channel else ctx.channel
 
-        deleted = await target.purge(limit=min(100, nbr+1), check=lambda msg: msg.author in person if person else True)
+        deleted = await target.purge(limit=min(100, nbr + 1),
+                                     check=lambda msg: msg.author in person if person else True)
+
+        await ctx.send(f"{len(deleted)} messages deleted! :white_check_mark:", delete_after=2)
+
+    @commands.has_permissions(read_message_history=True, manage_messages=True)
+    @commands.command(brief="Clears all messages between 2 specified messages (bound included)")
+    async def clear_timeframe(self, ctx: commands.Context,
+                              msg1: Message,
+                              msg2: Message,
+                              channel: Optional[TextChannel]):
+        """Clears all messages between 2 specified messages (bound included)"""
+
+        target = channel if channel else ctx.channel
+
+        if msg1.id > msg2.id:
+            msg2, msg1 = msg1, msg2
+
+        deleted = await target.purge(check=lambda msg: msg1.id <= msg.id <= msg2.id)
+        await ctx.message.delete()
 
         await ctx.send(f"{len(deleted)} messages deleted! :white_check_mark:", delete_after=2)
 

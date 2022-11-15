@@ -1,9 +1,10 @@
 """instanciate Super Mod Discord bot"""
-
+import asyncio
 import logging
 import os
 import time
 
+from discord import Intents
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -22,13 +23,20 @@ handler = logging.FileHandler(
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
+intents = Intents.default()
+intents.message_content = True
+
 bot = commands.Bot(
     command_prefix="^^",
     case_insensitive=True,
+    intents=intents,
     description="Help you moderate server with mod cmds"
 )
 
-bot.add_cog(Misc(bot))
-bot.add_cog(Mod(bot))
 
-bot.run(os.environ.get("SuperMod"))
+async def main(b: commands.Bot):
+    await b.add_cog(Misc(b))
+    await b.add_cog(Mod(b))
+    await b.start(os.environ.get("SuperMod"))
+
+asyncio.run(main(bot))
