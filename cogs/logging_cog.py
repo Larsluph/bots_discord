@@ -6,8 +6,6 @@ import discord
 
 from discord.ext import commands
 
-from datetime import datetime as dt
-
 
 class LoggingCog(commands.Cog, name="LoggingCog"):
     def __init__(self, bot: commands.Bot):
@@ -15,7 +13,19 @@ class LoggingCog(commands.Cog, name="LoggingCog"):
 
     @commands.Cog.listener()
     async def on_message_delete(self, msg: discord.Message):
-        pass
+        avatar_url = msg.author.avatar.url if msg.author.avatar else None
+        embed = discord.Embed(title="Message Deleted", description=f"A message just got deleted in <#{msg.channel.id}>", color=discord.Color.red())
+
+        embed.set_author(name=msg.author.name)
+        embed.set_thumbnail(url=avatar_url)
+
+        embed.add_field(name="Content", value=msg.content, inline=False)
+
+        embed.add_field(name="Created at", value=f"<t:{msg.created_at}:F> (<t:{msg.created_at}:R>)", inline=True)
+        if msg.edited_at:
+            embed.add_field(name="Last Edited at", value=f"<t:{msg.edited_at}:F> (<t:{msg.edited_at}:R>)", inline=True)
+
+        await self.bot.get_channel(771856448728727612).send(embed=embed)
 
     @commands.Cog.listener()
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
